@@ -1,29 +1,55 @@
-// App.jsx
-import { Navigate, Route, Routes } from 'react-router-dom'; // Changed from 'react-router'
+import { Navigate, Route, Routes } from 'react-router-dom';
+
 import Login from './pages/auth/Login';
-import PatientListLayout from './components/layout/PatientListLayout';
-import PatientList from './pages/patients/PatientList';
+import Unauthorized from './pages/Unauthorized';
 import AddPatient from './pages/patients/AddPatient';
+import PatientList from './pages/patients/PatientList';
 import EditPatient from './pages/patients/EditPatient';
+import { ProtectedRoute } from './components/common/ProtectedRoute';
+import PatientListLayout from './components/layout/PatientListLayout';
 
 function App() {
 	return (
 		<Routes>
-			{/* login */}
 			<Route path='/login' element={<Login />} />
+			<Route path='/unauthorized' element={<Unauthorized />} />
 
-			{/* patients */}
-			<Route path='/' element={<PatientListLayout />}>
+			{/* Protected routes */}
+			<Route
+				path='/'
+				element={
+					<ProtectedRoute>
+						<PatientListLayout />
+					</ProtectedRoute>
+				}
+			>
 				<Route index element={<Navigate to='patients' />} />
 
 				<Route path='patients'>
 					<Route index element={<PatientList />} />
-					<Route path='add' element={<AddPatient />} />
-					<Route path=':id/edit' element={<EditPatient />} />
+					<Route
+						path='add'
+						element={
+							<ProtectedRoute allowedRoles={['admin']}>
+								<AddPatient />
+							</ProtectedRoute>
+						}
+					/>
+					<Route
+						path=':id/edit'
+						element={
+							<ProtectedRoute allowedRoles={['admin']}>
+								<EditPatient />
+							</ProtectedRoute>
+						}
+					/>
 				</Route>
 			</Route>
 		</Routes>
 	);
+
+	// ---ErrorBoundary test---
+	// throw new Error('Test error!');
 }
 
 export default App;
